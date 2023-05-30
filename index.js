@@ -24,18 +24,22 @@ const getUser = (userId) => {
 
 io.on("connection", (socket) => {
     //when ceonnect
-    console.log({users});
+    // Lắng nghe sự kiện join room
+    socket.on('join room', (roomId) => {
+        // Tham gia vào phòng với roomId
+        socket.join(roomId);
+        console.log(`User joined room ${roomId}`);
+    });
     //take userId and socketId from user
     socket.on("addUser", (userId) => {
         addUser(userId, socket.id);
         io.emit("getUsers", users);
+        console.log("List user online: ",users);
         //console.log('connect : ',{users});
     });
     //send and get message
-    socket.on("sendMessage", ({ chat_id, deleted, img, profilePic, sentTime, userSend_id, receiverId, text }) => {
-        const user = getUser(receiverId);
-        //console.log({user});
-        io.to(user.socketId).emit("getMessage", {
+    socket.on("sendMessage", ({ chat_id, deleted, img, profilePic, sentTime, userSend_id, text }) => {
+        io.to(chat_id).emit("getMessage", {
             chat_id, 
             deleted, 
             img, 
